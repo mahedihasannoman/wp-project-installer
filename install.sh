@@ -138,9 +138,9 @@ echo $vhost >> /Applications/MAMP/conf/apache/extra/httpd-vhosts.conf
 
 host_content="# Added by project-installer\n127.0.0.1\t${projectdomain}.devlocal\n# End of section"
 
-sudo -H -u root bash -c 'echo '+${host_content}+' >> /etc/hosts'
+sudo -- sh -c "echo '$host_content' >> /etc/hosts";
 sudo -H -u root bash -c '/Applications/MAMP/bin/stopApache.sh'
 sudo -H -u root bash -c '/Applications/MAMP/bin/startApache.sh'
 
-echo "${green}vhost setup successful: http://${projectdomain}.devlocal${clear}"
+echo "${green}vhost setup successful: http://${projectdomain}.devlocal/wp-admin/${clear}"
 echo "Thank you!";
