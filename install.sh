@@ -73,7 +73,8 @@ echo "${green}Project has been cloned successfully${clear}"
 project_root=$(find * -type d -prune -exec ls -d {} \; |head -1)
 
 # Find the WP root dir.
-if [ -f "${project}/${project_root}/wp-cli.phar" ]; then
+if [ -f "${project}/${project_root}/wp-cli.phar" ]
+then
     wp_root="${project}/${project_root}"
 else
 	wp_root="${project}/${project_root}/public"
@@ -104,27 +105,28 @@ then
 fi
 
 # Check if wp-config.php file is exists
-if [ -f "${wp_root}/wp_config.php" ]; then
+if [ -f "${wp_root}/wp-config.php" ]
+then
     # wp config exists
-	${php} ${wp_root}/wp-cli.phar config set DB_NAME "${dbname}" --raw
-	${php} ${wp_root}/wp-cli.phar config set DB_USER "${dbuser}" --raw
-	${php} ${wp_root}/wp-cli.phar config set DB_PASSWORD "${dbpass}" --raw
-	${php} ${wp_root}/wp-cli.phar config set DB_HOST "127.0.0.1" --raw
+	${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DB_NAME "${dbname}"
+	${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DB_USER "${dbuser}"
+	${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DB_PASSWORD "${dbpass}"
+	${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DB_HOST "127.0.0.1"
 else
 	# wp config not exists
-	${php} ${wp_root}/wp-cli.phar config create --dbname=${dbname} --dbuser=${dbuser} --dbpass=${dbpass} --dbhost=127.0.0.1
+	${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config create --dbname=${dbname} --dbuser=${dbuser} --dbpass=${dbpass} --dbhost=127.0.0.1
 fi
 
 echo "Replaceing domain in database..."
-${php} ${wp_root}/wp-cli.phar search-replace "www.${projectdomain}" "${projectdomain}.devlocal" --all-tables --report-changed-only --url="www.${projectdomain}"
-${php} ${wp_root}/wp-cli.phar search-replace "https://${projectdomain}.devlocal" "http://${projectdomain}.devlocal" --all-tables --report-changed-only --url="https://${projectdomain}.devlocal"
+${php} ${wp_root}/wp-cli.phar --path="${wp_root}" search-replace "www.${projectdomain}" "${projectdomain}.devlocal" --all-tables --report-changed-only --url="www.${projectdomain}"
+${php} ${wp_root}/wp-cli.phar --path="${wp_root}" search-replace "https://${projectdomain}.devlocal" "http://${projectdomain}.devlocal" --all-tables --report-changed-only --url="https://${projectdomain}.devlocal"
 
 echo "Creating vhost..."
 vhost="<VirtualHost *:80>\n
     \tServerAdmin m.hasan@agentur-loop.com\n
-    \tDocumentRoot \"${project}/public\"\n
+    \tDocumentRoot \"${wp_root}\"\n
     \tServerName ${projectdomain}.devlocal\n
-    \t<Directory \"${project}/public\">\n
+    \t<Directory \"${wp_root}\">\n
         \t\tOptions All\n
         \t\tAllowOverride All\n
     \t</Directory>\n
@@ -136,6 +138,9 @@ echo $vhost >> /Applications/MAMP/conf/apache/extra/httpd-vhosts.conf
 
 host_content="# Added by project-installer\n127.0.0.1\t${projectdomain}.devlocal\n# End of section"
 
-echo $host_content >> /etc/hosts
+sudo -H -u root bash -c 'echo '+${host_content}+' >> /etc/hosts'
+sudo -H -u root bash -c '/Applications/MAMP/bin/stopApache.sh'
+sudo -H -u root bash -c '/Applications/MAMP/bin/startApache.sh'
+
 echo "${green}vhost setup successful: http://${projectdomain}.devlocal${clear}"
 echo "Thank you!";
