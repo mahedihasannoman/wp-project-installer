@@ -5,7 +5,6 @@
 
 # exit when any command fails
 set -e
-trap clear_temp_folder EXIT
 
 # Set the color variable
 warn='\033[0;33m'
@@ -33,6 +32,9 @@ if [ "$project" == "" ]; then
   read project
 fi
 
+# Remove trailing slash from project path
+project=$(echo $project | sed 's:/*$::')
+
 # Get the gitrepo if not passed as argument
 if [ "$gitrepo" == "" ]; then
   echo "${warn}please provide git repo${clear}"
@@ -57,7 +59,7 @@ if [ "$projectdomain" == "" ]; then
   done
 fi
 
-dbname=$projectdomain
+dbname="${projectdomain/./_}"    
 
 # Now we have all the info that required.
 
@@ -69,10 +71,13 @@ echo "Cloning project.."
 git clone ${gitrepo}
 echo "${green}Project has been cloned successfully${clear}"
 project_root=$(find * -type d -prune -exec ls -d {} \; |head -1)
-cd ${project_root}
 
 # Find the WP root dir.
-
+if [ -f "${project}/${project_root}/wp-cli.phar" ]; then
+    wp_root="${project}/${project_root}"
+else
+	wp_root="${project}/${project_root}/public"
+fi
 
 # Download the backup database
 # mkdir -p ${project}/${projectdomain}-db
@@ -89,15 +94,30 @@ then
 	if [ ! -z "${project}/${projectdomain}-db/$backup_sql" ]
 	then
 		echo "Creating Database..."
-		${mysql} --user="${dbuser}" --password="${dbpass}" --execute="CREATE DATABASE ${dbname};"
+		${mysql} --user="${dbuser}" --password="${dbpass}" --execute="DROP DATABASE ${dbname};CREATE DATABASE ${dbname};"
 		echo "${green}Database has been creared!${clear}"
 		echo "Importing Database..."
 		${mysql} --user="${dbuser}" --password="${dbpass}" ${dbname} < ${project}/${projectdomain}-db/${backup_sql}
 		rm -rf ${project}/${projectdomain}-db
 		echo "${green}Database has been imported successfully.${clear}"
 	fi
-
 fi
+
+# Check if wp-config.php file is exists
+if [ -f "${wp_root}/wp_config.php" ]; then
+    # wp config exists
+	${php} ${wp_root}/wp-cli.phar config set DB_NAME "${dbname}" --raw
+	${php} ${wp_root}/wp-cli.phar config set DB_USER "${dbuser}" --raw
+	${php} ${wp_root}/wp-cli.phar config set DB_PASSWORD "${dbpass}" --raw
+	${php} ${wp_root}/wp-cli.phar config set DB_HOST "127.0.0.1" --raw
+else
+	# wp config not exists
+	${php} ${wp_root}/wp-cli.phar config create --dbname=${dbname} --dbuser=${dbuser} --dbpass=${dbpass} --dbhost=127.0.0.1
+fi
+
+echo "Replaceing domain in database..."
+${php} ${wp_root}/wp-cli.phar search-replace "www.${projectdomain}" "${projectdomain}.devlocal" --all-tables --report-changed-only --url="www.${projectdomain}"
+${php} ${wp_root}/wp-cli.phar search-replace "https://${projectdomain}.devlocal" "http://${projectdomain}.devlocal" --all-tables --report-changed-only --url="https://${projectdomain}.devlocal"
 
 echo "Creating vhost..."
 vhost="<VirtualHost *:80>\n
@@ -119,11 +139,3 @@ host_content="# Added by project-installer\n127.0.0.1\t${projectdomain}.devlocal
 echo $host_content >> /etc/hosts
 echo "${green}vhost setup successful: http://${projectdomain}.devlocal${clear}"
 echo "Thank you!";
-
-clear_temp_folder () {
-	[ -d "${project}/${projectdomain}-db" ] && rm -rf ${project}/${projectdomain}-db
-
-	if [ "$project_root" != "" ]; then
-		[ -d "${project}/${project_root}" ] && rm -rf ${project}/${project_root}
-	fi
-}
