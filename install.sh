@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Import Configs
+. .config
+
+# exit when any command fails
+set -e
+
 echo "Please provide your project path\n"
 read project
 
