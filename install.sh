@@ -39,27 +39,30 @@ project=$(echo $project | sed 's:/*$::')
 
 # Get the gitrepo if not passed as argument
 if [ "$gitrepo" == "" ]; then
-  echo "${warn}please provide git repo${clear}"
   while [[ $gitrepo = "" ]]; do
+    echo "${warn}please provide git repo. e.g: git@gitlab.com:example-website-2022.git${clear}"
     read gitrepo
   done
 fi
 
 # Get the backup_dbpath if not passed as argument
 if [ "$backup_dbpath" == "" ]; then
-  echo "${warn}please provide backup DB path${clear}"
   while [[ $backup_dbpath = "" ]]; do
+    echo "${warn}please provide backup DB path. e.g: root@example.com:/var/backup/db.zst${clear}"
     read backup_dbpath
   done
 fi
 
 # Get the project domain if not passed as argument
 if [ "$projectdomain" == "" ]; then
-  echo "${warn}please provide project domain${clear}"
   while [[ $projectdomain = "" ]]; do
+    echo "${warn}please provide project domain. e.g: example.com${clear}"
     read projectdomain
   done
 fi
+
+# remove www from project domain
+projectdomain=${projectdomain#"www."}
 
 dbname="${projectdomain/./_}"    
 
@@ -142,11 +145,7 @@ else
     echo "${red}You can run the following commands in terminal to fix this issue 'sudo ln -s ${mysql} /usr/local/bin/mysql'${clear}"
     echo "${red}After that you can run this script again it again.${clear}"
     exit;
-
   fi
-
-	
-  
 fi
 
 echo "Replaceing domain in database..."
