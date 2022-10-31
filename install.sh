@@ -9,6 +9,7 @@ set -e
 # Set the color variable
 warn='\033[0;33m'
 green='\033[0;32m'
+red='\033[0;31m'
 clear='\033[0m'
 
 # Get arguments via command line
@@ -126,15 +127,25 @@ then
 else
 	# wp config not exists
   echo "${warn}wp-config.php file is not exists. Trying to generate wp-config.php file${clear}"
-	${php} ${wp_root}/wp-cli.phar --path=${wp_root} config create --dbname=${dbname} --dbuser=${dbuser} --dbpass=${dbpass} --dbhost=127.0.0.1
-  
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set WP_ALLOW_MULTISITE "true" --raw
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set MULTISITE "true" --raw
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set SUBDOMAIN_INSTALL "false" --raw
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DOMAIN_CURRENT_SITE "${projectdomain}.devlocal"
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set PATH_CURRENT_SITE '/'
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set SITE_ID_CURRENT_SITE '1'
-  ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set BLOG_ID_CURRENT_SITE '1'
+
+  if which mysql >/dev/null; then
+    ${php} ${wp_root}/wp-cli.phar --path=${wp_root} config create --dbname=${dbname} --dbuser=${dbuser} --dbpass=${dbpass} --dbhost=127.0.0.1
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set WP_ALLOW_MULTISITE "true" --raw
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set MULTISITE "true" --raw
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set SUBDOMAIN_INSTALL "false" --raw
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set DOMAIN_CURRENT_SITE "${projectdomain}.devlocal"
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set PATH_CURRENT_SITE '/'
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set SITE_ID_CURRENT_SITE '1'
+    ${php} ${wp_root}/wp-cli.phar --path="${wp_root}" config set BLOG_ID_CURRENT_SITE '1'
+  else
+    echo "${red}'mysql' command is not executable in terminal. It is required for wp cli to generating wp-config.php file.${clear}"
+    echo "${red}You can run the following commands in terminal to fix this issue 'sudo ln -s ${mysql} /usr/local/bin/mysql'${clear}"
+    echo "${red}After that you can run this script again it again.${clear}"
+    exit;
+
+  fi
+
+	
   
 fi
 
@@ -181,6 +192,4 @@ if [[ $vhost == "y" || $vhost == "Y" || $vhost == "yes" || $vhost == "Yes" ]]; t
 fi
 
 echo "${green}Project Setup has been Completed!${clear}";
-
-code ${project_root}
 exit
