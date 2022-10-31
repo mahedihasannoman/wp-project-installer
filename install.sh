@@ -84,6 +84,13 @@ else
 	wp_root="${project}/${project_root}/public"
 fi
 
+# Find the WP root dir.
+if [ -f "${project}/${project_root}/composer.json" ]
+then
+  cd ${project}/${project_root}/
+  composer install
+fi
+
 # Download the backup database
 # mkdir -p ${project}/${projectdomain}-db
 echo "Downloading Database..."
