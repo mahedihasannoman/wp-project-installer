@@ -59,6 +59,7 @@ fi
 # remove www from project domain
 projectdomain=${projectdomain#"www."}
 
+# Create DB name out of Domain. example.com -> example_com
 dbname="${projectdomain//./_}" 
 
 # Now we have all the info that required.
