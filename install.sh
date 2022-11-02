@@ -6,17 +6,12 @@
 # exit when any command fails
 set -e
 
-# Set the color variable
-warn='\033[0;33m'
-green='\033[0;32m'
-red='\033[0;31m'
-clear='\033[0m'
-
 # Get arguments via command line
 # `-p` for Project path
 # `-g` Fot Git repo
 # `-b` for backup db path
 # `-d` for project domain
+# `-h` for vhost y/n
 while getopts p:g:b:d:h: flag
 do
     case "${flag}" in
@@ -88,15 +83,21 @@ else
 	wp_root="${project}/${project_root}/public"
 fi
 
-# Find the WP root dir.
+# Run composer inside project root
 if [ -f "${project}/${project_root}/composer.json" ]
 then
   cd ${project}/${project_root}/
   composer install
 fi
 
+# Run composer inside wp root
+if [ -f "${wp_root}/composer.json" ]
+then
+  cd ${wp_root}/
+  composer install
+fi
+
 # Download the backup database
-# mkdir -p ${project}/${projectdomain}-db
 echo "Downloading Database..."
 rsync -avz ${backup_dbpath} ${project}/${projectdomain}-db/
 
@@ -116,7 +117,13 @@ then
 		${mysql} --user="${dbuser}" --password="${dbpass}" ${dbname} < ${project}/${projectdomain}-db/${backup_sql}
 		rm -rf ${project}/${projectdomain}-db
 		echo "${green}Database has been imported successfully.${clear}"
+  else
+    echo "${red}Failed to extract the Database. Make sure the file extension is: .zst${clear}"
+    exit
 	fi
+else
+  echo "${red}Error on downloading database${clear}"
+  exit
 fi
 
 # Check if wp-config.php file is exists

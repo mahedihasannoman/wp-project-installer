@@ -62,7 +62,7 @@ sh install.sh -d "example.com" -p "/Users/mahedi/wp" -b "root@example.com:/var/b
 These are the following arguments you can to pass in terminal.
 
 * `-p` (Optional) for Project path. Where you want to install the wp project. If you do not put anything then it will install the project in current directory.
-* `-g` (Required) Fot Git repo. e.g: git@gitlab.com:example-website-2019.git or https://gitlab.com/example-website-2019.git
-* `-b` (Required) for backup db path. e.g: root@example.com:/var/backups/db.zst
-* `-d` (Required) for project domain. e.g: example.com
+* `-g` (Required) Fot Git repo. e.g: `git@gitlab.com:example-website-2019.git` or `https://gitlab.com/example-website-2019.git`
+* `-b` (Required) for backup db path. e.g: `root@example.com:/var/backups/db.zst`
+* `-d` (Required) for project domain. e.g: `example.com`
 * `-h` (Optional) for vhost (y/n). If you want to create vhost.
