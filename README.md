@@ -13,9 +13,11 @@ Getting started with this tool is pretty straight forward. All you have to do is
 
 ### Requirements
 
-* You need to have `Apache` installed on your computer. It's not fully compatible with nginx.
+* Make sure you have access to the git repo.
+* Make sure you have access to backup db path.
 * You need to have `php` installed on your computer.
 * You need to have `mysql` installed on your computer. Also the `mysql` command should be executable in terminal. If not, then you can create a symbolic link like this `sudo ln -s /Applications/MAMP/Library/bin/mysql /usr/local/bin/mysql`
+* You need to have `Apache` installed on your computer (if you want to setup vhost). It's not fully compatible with nginx.
 
 ### Install
 
@@ -47,9 +49,20 @@ Use the below command inside the project
 ```
 sh install.sh
 ```
+It will collect required information by asking questions in terminal.
 
 or
 
 ```
-sh install.sh -d "example.com" -p "/Users/mahedi/wp" -b "root@example.com:/var/backups/db.zst" -g "git@gitlab.agentur-loop.com:example-website-2019.git" -h "Yes"
+sh install.sh -d "example.com" -p "/Users/mahedi/wp" -b "root@example.com:/var/backups/db.zst" -g "git@gitlab.com:example-website-2019.git" -h "Yes"
 ```
+
+### Aruguments
+
+These are the following arguments you can to pass in terminal.
+
+* `-p` (Optional) for Project path. Where you want to install the wp project. If you do not put anything then it will install the project in current directory.
+* `-g` (Required) Fot Git repo. e.g: git@gitlab.com:example-website-2019.git or https://gitlab.com/example-website-2019.git
+* `-b` (Required) for backup db path. e.g: root@example.com:/var/backups/db.zst
+* `-d` (Required) for project domain. e.g: example.com
+* `-h` (Optional) for vhost (y/n). If you want to create vhost.
