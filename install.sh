@@ -59,7 +59,7 @@ fi
 # remove www from project domain
 projectdomain=${projectdomain#"www."}
 
-dbname="${projectdomain/./_}"    
+dbname="${projectdomain//./_}" 
 
 # Now we have all the info that required.
 
