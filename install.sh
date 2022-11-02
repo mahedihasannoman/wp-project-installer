@@ -183,6 +183,7 @@ create_vhost() {
   sudo -H -u root bash -c "${startApache}"
 
   echo "${green}vhost setup successful: http://${projectdomain}.devlocal/wp-admin/${clear}"
+  echo "${green} If the URL does not work then you may need to restart the Apache manually."
 }
 
 # Check if vhost status is not passed as argument
