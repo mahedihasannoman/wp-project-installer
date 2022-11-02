@@ -33,6 +33,11 @@ cd wp-project-installer
 Then open the `.config` file in a text editor and add your own value for these variables
 `mysql`, `dbuser`, `dbpass` & `php`
 
+If you want to create vhost automatically then you may need to change the values for the below variables as well. Currently it is just configured for MAMP.
+* `vhost_config` virtual host config file.
+* `stopApache` executable file path for stoping Apache.
+* `startApache` executable file path for starting Apache.
+
 That's all!
 
 ### Usage
